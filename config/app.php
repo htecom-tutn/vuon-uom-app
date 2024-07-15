@@ -231,5 +231,13 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
     ],
-
+    'data' => [
+        'active' => 10, // Đang hoạt động
+        'notActive' => 0, // Không hoạt động
+        'notDeleted' => 0, // chưa xóa
+        'deleted' => 1, // Đã xóa
+        'isAdmin' => 1,
+        'isNotAdmin' => 0,
+        'isParent' => 10,
+    ]
 ];

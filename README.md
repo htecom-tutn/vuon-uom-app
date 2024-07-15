@@ -4,3 +4,5 @@
 - Tạo ra các model như sau: TTUser - Bảng User , TTRoles - Vai trò, TUserRoles - ID của User và Vai trò
 
 # Khai báo kết nối 2 db trong file database.php
+# Tạo và chạy migrate tạo index cho trường phone database trông trẻ pro.
+# php artisan migrate

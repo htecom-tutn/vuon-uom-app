@@ -35,5 +35,8 @@ class TUser extends Model
         'rating_count',
         'status',
     ];
-
+    public function devices()
+    {
+        return $this->hasMany(TUserDevice::class, 'user_id', 'id' )->orderBy('created_at', 'desc');
+    }    
 }

@@ -1,28 +1,21 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Models\TrongTrePro\TUser;
-use App\Models\VuonUomApp\TTUser;
+use App\Services\TTUsers\TTUserInterface;
+use App\Services\TUsers\TUserInterface;
 use Illuminate\Http\Request;
-
 class ConvertController extends Controller
 {
-    //
-
-    public function __construct()
+    protected $ttUserInterface;
+    protected $tUserInterface;
+    public function __construct(TTUserInterface $ttUserInterface, TUserInterface $tUserInterface)
     {
-        
-    }
-
-    public function getDataTT(){
-        $model = TUser::all();
-        return $this->responseData($model);
-    }
-
-    public function getDataVU(){
-        $model = TTUser::all();
-        return $this->responseData($model);
+        $this->ttUserInterface = $ttUserInterface;
+        $this->tUserInterface = $tUserInterface;
     }
     
+    public function convertData(Request $request){                
+        $data = $request->all();
+        return $this->responseData($this->tUserInterface->convertDataFromTrongTrePro($data));
+    }
 }

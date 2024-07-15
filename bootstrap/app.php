@@ -11,6 +11,11 @@
 |
 */
 
+use App\Services\TTUsers\TTUserInterface;
+use App\Services\TTUsers\TTUserServices;
+use App\Services\TUsers\TUserInterface;
+use App\Services\TUsers\TUserServices;
+
 $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
@@ -40,7 +45,10 @@ $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
     App\Exceptions\Handler::class
 );
+// Đăng ký User
+$app->singleton(TTUserInterface::class, TTUserServices::class);
 
+$app->singleton(TUserInterface::class, TUserServices::class);
 /*
 |--------------------------------------------------------------------------
 | Return The Application
