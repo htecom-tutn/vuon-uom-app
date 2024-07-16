@@ -238,6 +238,13 @@ return [
         'deleted' => 1, // Đã xóa
         'isAdmin' => 1,
         'isNotAdmin' => 0,
-        'isParent' => 10,
+        'isParent' => 11,
+        'roles' => [
+            'isAdmin' => 1,
+            'isTeacher' => 10,
+            'isParent' => 11, 
+            'isLeaderKD' =>12,
+            'isLeaderDT' => 13 
+        ]
     ]
 ];

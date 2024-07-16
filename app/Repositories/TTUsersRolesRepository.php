@@ -1,13 +1,12 @@
 <?php
 
 namespace App\Repositories;
-
-use App\Models\TrongTrePro\TUser;
+use App\Models\VuonUomApp\TTUserRoles;
 use App\Repositories\BaseRepository;
-class TUsersRepository extends BaseRepository
+class TTUsersRolesRepository extends BaseRepository
 {
     public $model;
-    public function __construct(TUser $model)
+    public function __construct(TTUserRoles $model)
     {        
         $this->model = $model;        
     }

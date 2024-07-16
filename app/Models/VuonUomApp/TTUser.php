@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TTUser extends Model
 {
-    use HasFactory;
-    use HasFactory;
+    use HasFactory;    
     protected $connection = 'mysql1';
     protected $table = 'trong_tre_user';
     protected $fillable = [
