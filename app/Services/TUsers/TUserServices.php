@@ -3,7 +3,9 @@
 namespace App\Services\TUsers;
 
 use App\Models\VuonUomApp\TTUser;
+use App\Models\VuonUomApp\TTUserRoles;
 use App\Repositories\TTUsersRepository;
+use App\Repositories\TTUsersRolesRepository;
 use App\Repositories\TUsersRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -13,9 +15,11 @@ class TUserServices implements TUserInterface
 {
     protected $tUsersRepository;
     protected $ttUsersRepository;
-    public function __construct(TUsersRepository $tUsersRepository, TTUsersRepository $ttUsersRepository) {       
+    protected $ttUsersRolesRepository;
+    public function __construct(TUsersRepository $tUsersRepository, TTUsersRepository $ttUsersRepository, TTUsersRolesRepository $ttUsersRolesRepository) {       
         $this->tUsersRepository = $tUsersRepository; // Trông trẻ pro     
         $this->ttUsersRepository = $ttUsersRepository; // vươn ươm     
+        $this->ttUsersRolesRepository = $ttUsersRolesRepository; // vươn ươm     
     }
     
     public function getDataTT(){
@@ -32,18 +36,17 @@ class TUserServices implements TUserInterface
         try {
             $data = $this->getDataTT();        
             // Data mới của bảng vườn ươm    
-            $status = config('app.data.notActive');        
-            $active = config('app.data.notDeleted');
-            // $hashPassword = Hash::make('123456aA@');
+            $status = config('app.data.active'); //1        
+            $active = config('app.data.notDeleted'); //1            
             $pTUsers = [];
             foreach ($data as $item) {            
-                $status = $this->checkExistUsers($item['phone']);                   
-                if($status) {
+                $check = $this->checkExistUsers($item['phone']);                   
+                if($check) {
                     continue;
                 } else {
                     if(count($item['devices']) > 0) $mobile_token = json_encode($item['devices']->pluck('fcm_token')->toArray());         
                     else $mobile_token = null;
-                    if($item['status'] == 0 || $item['status'] == 1) $status = $item['status'];
+                    if($item['status'] == 0) $status = $item['status'];                    
                     if($item['status'] == -1) $active = config('app.data.deleted');
                     // Data của bảng user
                     $pTUsers[] = [
@@ -52,8 +55,8 @@ class TUserServices implements TUserInterface
                         'dien_thoai' => $item['phone'] ?? null,
                         'anh_nguoi_dung' => $item['avt'] ?? null,                
                         'email' => $item['email'] ?? null,                        
-                        'status' => $status ?? 0,
-                        'active' => $active ?? 0,
+                        'status' => $status ?? 1,
+                        'active' => $active ?? 1,
                         'created_at' => $item['created_at'] ?? Carbon::now()->format('Y-m-d H:i'),                               
                         // 'updated_at' => Carbon::now()->format('Y-m-d H:i'),                               
                         'hoten' => $item['full_name'] ?? null,
@@ -80,9 +83,9 @@ class TUserServices implements TUserInterface
                         // Thông tin về con                
                         'ho_ten_con' => null,
                         'ngay_sinh_cua_con' => Null,
-                        'khoa_tai_khoan' => Null,
+                        'khoa_tai_khoan' => 0,
                         'ma_so_thue' => Null,
-                        'trang_thai_vao_ca' => Null,
+                        'trang_thai_vao_ca' => 'Đang rảnh',
                         'ten_ngan_hang' => Null,
                         'so_tai_khoan' => Null,
                         'chu_tai_khoan' => Null,
@@ -91,30 +94,28 @@ class TUserServices implements TUserInterface
                         'token_facebook' => Null,
                         'token_google' => Null,
                         'id_facebook' => Null,
-                        'id_google' => Null,
-        
+                        'id_google' => Null,        
                     ];                   
                 }            
-            }                                 
+            }     
+            $uRoleData = [];                            
             // Thêm mới vào bảng user
             if(count($pTUsers) > 0) {
                 $dUsers = $this->ttUsersRepository->createMultiple($pTUsers)->pluck('id')->toArray();
-                foreach ($dUsers as $item) {
+                foreach ($dUsers as $item) {                    
                     $uRoleData [] = [
                         'user_id' => $item,
                         'vaitro_id' => config('app.data.roles.isParent')
                     ];
                 }
-                dd('1111' , $uRoleData);
-            }
-            
-            
-            
-        } catch (\Throwable $th) {
-            Log::info($th->getMessage(), $th->getLine());
+                // TTUserRoles::insert($uRoleData);
+                $this->ttUsersRolesRepository->createMultiple($uRoleData);
+            }            
+        } catch (\Throwable $th) {       
+            dd($th->getMessage());
+            Log::info($th->getMessage());
             return $th->getMessage();
         }
-
-
+        return true;
     }
 }
