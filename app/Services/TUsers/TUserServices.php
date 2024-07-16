@@ -23,7 +23,8 @@ class TUserServices implements TUserInterface
     }
     
     public function getDataTT(){
-        $model = $this->tUsersRepository->with(['devices'])->get();        
+        // $model = $this->tUsersRepository->with(['devices'])->get();        
+        $model = $this->tUsersRepository->with(['devices'])->where('phone', '0973631930')->get();            
         return $model;
     }
     public function checkExistUsers($username){
@@ -34,13 +35,14 @@ class TUserServices implements TUserInterface
     }
     public function convertDataFromTrongTrePro($params){
         try {
-            $data = $this->getDataTT();        
+            $data = $this->getDataTT();                    
             // Data mới của bảng vườn ươm    
             $status = config('app.data.active'); //1        
             $active = config('app.data.notDeleted'); //1            
             $pTUsers = [];
             foreach ($data as $item) {            
-                $check = $this->checkExistUsers($item['phone']);                   
+                $check = $this->checkExistUsers($item['phone']);  
+                           
                 if($check) {
                     continue;
                 } else {
@@ -69,8 +71,7 @@ class TUserServices implements TUserInterface
                         'is_admin' =>  config('app.data.isNotAdmin') ?? null,   // Thêm cả bảng trong_tre_vaitrouser                
                         // 'auth_key' => !empty($item['last_login']) ? Str::random(35) : '',
                         'auth_key' => null,
-                        'danh_gia' => null,  
-        
+                        'danh_gia' => '5/5',          
                         'cmnd_cccd' => null,
                         'bang_cap' => null,
                         'dien_thoai_du_phong' => null,
@@ -78,8 +79,7 @@ class TUserServices implements TUserInterface
                         'trinh_do' => null,
                         'password_hash' => null,
                         'password' => null,
-                        'is_finish' => 0,
-                        // 'danh_gia' => null,                
+                        'is_finish' => 1,                                      
                         // Thông tin về con                
                         'ho_ten_con' => null,
                         'ngay_sinh_cua_con' => Null,
@@ -88,8 +88,7 @@ class TUserServices implements TUserInterface
                         'trang_thai_vao_ca' => 'Đang rảnh',
                         'ten_ngan_hang' => Null,
                         'so_tai_khoan' => Null,
-                        'chu_tai_khoan' => Null,
-                        // 'is_finish' => Null,
+                        'chu_tai_khoan' => Null,                        
                         'leader_id' => Null,
                         'token_facebook' => Null,
                         'token_google' => Null,
@@ -111,8 +110,7 @@ class TUserServices implements TUserInterface
                 // TTUserRoles::insert($uRoleData);
                 $this->ttUsersRolesRepository->createMultiple($uRoleData);
             }            
-        } catch (\Throwable $th) {       
-            dd($th->getMessage());
+        } catch (\Throwable $th) {                   
             Log::info($th->getMessage());
             return $th->getMessage();
         }
