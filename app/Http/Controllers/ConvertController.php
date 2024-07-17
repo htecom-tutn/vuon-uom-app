@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TrongTrePro\TUser;
 use App\Models\VuonUomApp\TTUser;
 use App\Services\ConvertData\ConvertDataInterface;
 use App\Services\TTUsers\TTUserInterface;
@@ -23,8 +24,9 @@ class ConvertController extends Controller
         $this->convertDataInterface = $convertDataInterface;        
     }
     
-    public function getDataVU(){
-        $model = TTUser::all();        
+    public function getDataVU(){        
+        $model = TUser::all(); 
+        dd($model);
     }
     public function convertData(Request $request){                
         $data = $request->all();

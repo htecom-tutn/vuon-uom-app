@@ -17,8 +17,3 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-// Route::group(['prefix'=>'map-data'], function(){
-//     Route::get('/trong-tre', [ConvertController::class, 'getDataTT'] )->name('index');
-//     Route::get('/vuon-uom', [ConvertController::class, 'getDataVU'] )->name('index');    
-//     Route::get('/convert-data', [ConvertController::class, 'convertData'] )->name('index');    
-// });
