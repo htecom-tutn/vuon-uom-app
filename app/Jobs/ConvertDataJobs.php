@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services\ConvertData\ConvertDataInterface;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,9 +19,11 @@ class ConvertDataJobs implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
+    protected $convertDataInterface;
+    protected $data;
+    public function __construct($data)
     {
-        //
+        $this->data = $data;
     }
 
     /**
@@ -28,8 +31,9 @@ class ConvertDataJobs implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
-    {
-        //
+    public function handle(ConvertDataInterface $convertDataInterface)
+    {        
+        $this->convertDataInterface = $convertDataInterface;
+        $this->convertDataInterface->cvDataFromTrongTrePro($this->data);
     }
 }

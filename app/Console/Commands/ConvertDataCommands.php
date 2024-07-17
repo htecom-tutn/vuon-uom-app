@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ConvertDataJobs;
+use App\Services\ConvertData\ConvertDataInterface;
 use Illuminate\Console\Command;
 
 class ConvertDataCommands extends Command
@@ -12,7 +14,7 @@ class ConvertDataCommands extends Command
      * @var string
      */
     protected $signature = 'convert:data';
-
+    protected $convertDataInterface;
     /**
      * The console command description.
      *
@@ -25,9 +27,10 @@ class ConvertDataCommands extends Command
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(ConvertDataInterface $convertDataInterface)
     {
-        parent::__construct();
+        parent::__construct();        
+        $this->convertDataInterface = $convertDataInterface;
     }
 
     /**
@@ -37,6 +40,6 @@ class ConvertDataCommands extends Command
      */
     public function handle()
     {
-        return 0;
+        dispatch(new ConvertDataJobs($this->convertDataInterface));
     }
 }

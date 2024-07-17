@@ -21,18 +21,18 @@ class ConvertDataServices implements ConvertDataInterface
         $this->ttUsersRepository = $ttUsersRepository; // vươn ươm     
         $this->ttUsersRolesRepository = $ttUsersRolesRepository; // vươn ươm     
     }
-    public function cvDataFromTrongTrePro(){        
+    public function cvDataFromTrongTrePro(){              
         try {
             Log::info('Convert dữ liệu từ app cũ sang app mới');            
             $this->DataTTPro();
-        } catch (\Throwable $th) {   
-            dd($th->getMessage() . ' Dòng: ' . $th->getLine());
+            return true;
+        } catch (\Throwable $th) {               
             Log::info('Lỗi convert dữ liệu báo cáo tồn kho theo vị trí: ' . Carbon::now() . '-' . $th->getMessage() . ' Dòng: ' . $th->getLine());    
         }
     }
     private function DataTTPro(){                
-        $totalRecord = $this->tUsersRepository->with('devices')->count();        
-        $limit = 1000;
+        $totalRecord = $this->tUsersRepository->with('devices')->count();         
+        $limit = 500;
         for ($i = 0; $i < $totalRecord; $i += $limit) {            
             $this->getDataOld($i, $limit);
         }   
