@@ -4,5 +4,5 @@ namespace App\Services\ConvertData;
 
 interface ConvertDataInterface
 {    
-    public function convertDataFromTrongTrePro();
+    public function cvDataFromTrongTrePro();
 }
