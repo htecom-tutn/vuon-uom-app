@@ -1,185 +1,153 @@
-<?php 
+<?php
+
 namespace App\Repositories;
-use Closure;
-use Illuminate\Database\Eloquent\Collection;
 
-abstract class BaseRepository implements BaseRepositoryInterface {
+abstract class BaseRepository implements BaseRepositoryInterface
+{
     protected $model;
-	protected $query;
-	protected $take;
-	protected $whereById;
-	protected $with = array();
-	protected $wheres = array();
-	protected $whereNull = array();
-	protected $whereIns = array();
-	protected $orderBys = array();
-	protected $scopes = array();
-    protected $whereHas = array();
-    public function all()
-	{
-		$this->newQuery()->eagerLoad();
-		$models = $this->query->get();
-		$this->unsetClauses();
-		return $models;
-	}
-	public function count()
-	{
-		return $this->get()->count();
-	}
-	public function create(array $data)
-	{
-		$this->unsetClauses();
-		return $this->model->create($data);
-	}
-	public function createMultiple(array $data)
-	{
-		$models = new Collection();
-		foreach($data as $d)
-		{
-			$models->push($this->create($d));
-		}
-		return $models;
-	}
-	public function delete()
-	{
-		$this->newQuery()->setClauses()->setScopes();
-		$result = $this->query->delete();
-		$this->unsetClauses();
-		return $result;
-	}
-	public function deleteById($id)
-	{
-		$this->unsetClauses();
+    protected $query;
+    protected $wheres = [];
+    protected $orderBy = [];
 
-		return $this->getById($id)->delete();
-	}
-	public function deleteMultipleById(array $ids)
-	{
-		return $this->model->destroy($ids);
-	}
-	public function first()
-	{
-		$this->newQuery()->eagerLoad()->setClauses()->setScopes();
+    /**
+     * @param array $fields
+     * @return mixed
+     */
+    public function all(array $fields = ['*'])
+    {
+        return $this->model->all($fields);
+    }
 
-		$model = $this->query->firstOrFail();
+    /** find item of model by id
+     * @param int $id
+     * @param array $relationships
+     * @return mixed
+     */
+    public function find(int $id, array $relationships = [])
+    {
+        return $this->model->with($relationships)->find($id);
+    }
 
-		$this->unsetClauses();
+    /** find item of model by id
+     * @param int $id
+     * @return model or false
+     */
+    public function findOrFail(int $id)
+    {
+        return $this->model->findOrFail($id);
+    }
 
-		return $model;
-	}
-	public function get()
-	{
-		$this->newQuery()->eagerLoad()->setClauses()->setScopes();
-		$models = $this->query->get();
-		$this->unsetClauses();
-		return $models;
-	}
-	public function getById($id)
-	{
-		$this->unsetClauses();
-		$this->newQuery()->eagerLoad();
-		return $this->query->findOrFail($id);
-	}
-	public function limit($limit)
-	{
-		$this->take = $limit;
-		return $this;
-	}
-    public function orderBy($column, $direction = 'asc')
-	{
-		$this->orderBys[] = compact('column', 'direction');
-		return $this;
-	}
-	public function updateById($id, array $data)
-	{
-		$this->unsetClauses();
-		$model = $this->getById($id);
-		$model->update($data);
-		return $model;
-	}
-	public function where($column, $value, $operator = '=')
-	{
-		$this->wheres[] = compact('column', 'value', 'operator');
-		return $this;
-	}
-	public function whereById($column, $value, $operator = '=')
-	{
-		$this->whereById = compact('column', 'value', 'operator');
-		return $this;
-	}
-	public function whereNull($column)
-	{
-		$this->whereNull[] = compact('column');
-		return $this;
-	}
-	public function whereIn($column, $values)
-	{
-		$values = is_array($values) ? $values : array($values);
-		$this->whereIns[] = compact('column', 'values');
-		return $this;
-	}
-	public function with($relations)
-	{
-		if (is_string($relations)) $relations = func_get_args();
+    /**
+     * @param array $data
+     * @return object
+     */
+    public function create(array $data)
+    {   
+        $data = $this->removeNotExistColumns($data);        
+        $insert = $this->model->create($data);
+        
+        return $insert;
+    }
 
-		$this->with = $relations;
+    /**
+     * @param int $id
+     * @param array $data
+     * @return bool
+     */
+    public function update(int $id, array $data)
+    {
+       
+        $result = $this->model->find($id);
+        $data = $this->removeNotExistColumns($data);
+        foreach ($data as $key => $value) {
+            $result->$key = $value;
+        }        
+        return $result->save();
+    }
 
-		return $this;
-	}
-	protected function newQuery()
-	{
-		$this->query = $this->model->newQuery();
-		return $this;
-	}
-	protected function eagerLoad()
-	{
-		foreach($this->with as $relation)
-		{
-			$this->query->with($relation);
-		}
-		return $this;
-	}
-	protected function setClauses()
-	{
-		foreach($this->wheres as $where)
-		{
-			$this->query->where($where['column'], $where['operator'], $where['value']);
-		}
-		foreach($this->whereIns as $whereIn)
-		{
-			$this->query->whereIn($whereIn['column'], $whereIn['values']);
-		}
-		foreach($this->orderBys as $orders)
-		{
-			$this->query->orderBy($orders['column'], $orders['direction']);
-		}
+    /**
+     * @param array $data
+     * @return object
+     */
+    public function updateOrCreate(array $condition, array $data)
+    {
+        return $this->model->updateOrCreate($condition, $data);
+    }
 
-		if(isset($this->take) and ! is_null($this->take))
-		{
-			$this->query->take($this->take);
-		}
+    /**
+     * @param int $id
+     * @return bool
+     */
+    public function delete(int $id)
+    {
+        $result = $this->model->find($id)->delete();
 
-		return $this;
-	}
-	protected function setScopes()
-	{
-		foreach($this->scopes as $method => $args)
-		{
-			$this->query->$method(implode(', ', $args));
-		}
-		return $this;
-	}
-	protected function unsetClauses()
-	{
-		$this->wheres   = array();
-		$this->whereIns = array();
-		$this->scopes   = array();
-		$this->take     = null;
-		return $this;
-	}
-    public function whereHas($relation, Closure $callback = null, $operator = '>=', $count = 1){                
-        $this->whereHas[] = [$relation, $callback, $operator ?: '>=', $count ?: 1];        
-        return $this;
-    }   
+        return $result;
+    }
 
+    /** get item of model by column
+     * @param string $column
+     * @param $option
+     * @return mixed
+     */
+    public function findBy(string $column, $option)
+    {
+        $data = $this->model->where($column, $option);
+        return $data;
+    }
+
+    /**
+     * @param array $condition
+     * @return mixed
+     */
+    public function findByCondition(array $condition)
+    {
+        return $this->model->where($condition);
+    }
+
+    public function removeNotExistColumns($input)
+    {       
+        $tableColumns = $this->getTableColumns();
+        foreach ($input as $keyInput => $valueInput) {
+            if (!in_array($keyInput, $tableColumns)) {
+                unset($input[$keyInput]);
+            }
+        }
+        return $input;
+    }
+
+    public function getTableColumns()
+    {
+        return $this->model->getConnection()->getSchemaBuilder()->getColumnListing($this->model->getTable());
+    }
+   
+    public function createMultiple(array $input)
+    {
+        $data = $this->model->insert($input);
+        if (!$data) {
+            // throw new Exception(trans('message.create_error'));
+        }
+
+        return $data;
+    }
+
+    public function whereIn($field, $value)
+    {
+        return $this->model->whereIn($field, $value);
+    }
+
+    public function with($relationships)
+    {
+        return $this->model->with($relationships);
+    }
+
+    public function select($column)
+    {
+        return $this->model->select($column);
+    }
+
+    public function whereNotNull($column)
+    {
+        return $this->model->whereNotNull($column);
+    }
 }

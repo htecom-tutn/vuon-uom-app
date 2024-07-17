@@ -1,42 +1,39 @@
-<?php 
+<?php
+
 namespace App\Repositories;
 
-use Closure;
+interface BaseRepositoryInterface
+{
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function create(array $data);
 
-interface BaseRepositoryInterface {
-    
-	public function all();
+    /**
+     * @param int $id
+     * @param array $data
+     * @return mixed
+     */
+    public function update(int $id, array $data);
 
-	public function count();
+    /**
+     * @param int $id
+     * @return mixed
+     */
+    public function delete(int $id);
 
-	public function create(array $data);
-
-	public function createMultiple(array $data);
-
-	public function delete();
-
-	public function deleteById($id);
-
-	public function deleteMultipleById(array $ids);
-
-	public function first();
-
-	public function get();
-
-	public function getById($id);
-
-	public function limit($limit);
-
-	public function orderBy($column, $value);
-
-	public function updateById($id, array $data);
-
-	public function where($column, $value, $operator = '=');	
-	public function whereById($column, $value, $operator = '=');
-	public function whereIn($column, $value);
-	public function whereNull($column);	
-	public function with($relations);
-
-    public function whereHas($relation, Closure $callback = null, $operator = '>=', $count = 1);
-	// public function findWhereHas(array $where, $attributes = ['*']);
+    public function all(array $fields = ['*']);
+    public function find(int $id, array $relationships = []);
+    public function findOrFail(int $id);        
+    public function updateOrCreate(array $condition, array $data);    
+    public function findBy(string $column, $option);
+    public function findByCondition(array $condition);
+    public function removeNotExistColumns($input);
+    public function getTableColumns();
+    public function createMultiple(array $input);
+    public function whereIn($field, $value);
+    public function with($relationships);
+    public function select($column);
+    public function whereNotNull($column);
 }
