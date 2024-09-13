@@ -13,6 +13,8 @@
 
 use App\Services\ConvertData\ConvertDataInterface;
 use App\Services\ConvertData\ConvertDataServices;
+use App\Services\TProviders\TProvidersInterface;
+use App\Services\TProviders\TProvidersServices;
 use App\Services\TTUsers\TTUserInterface;
 use App\Services\TTUsers\TTUserServices;
 use App\Services\TUsers\TUserInterface;
@@ -53,6 +55,8 @@ $app->singleton(TTUserInterface::class, TTUserServices::class);
 $app->singleton(TUserInterface::class, TUserServices::class);
 
 $app->singleton(ConvertDataInterface::class, ConvertDataServices::class);
+
+$app->singleton(TProvidersInterface::class, TProvidersServices::class);
 
 
 /*
